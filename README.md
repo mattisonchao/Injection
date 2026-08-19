@@ -80,23 +80,3 @@ Cluster endpoints come from the cluster status
    and disable snapshot backfill, so only post-MV events are ingested.
 5. Query the MV through the workspace gateway (psql :4567 or the WebSocket
    endpoint) and verify the rows.
-
-## Gotchas
-
-- Kafka payloads must be the **Confluent wire format** (`\x00` + 4-byte schema
-  id + raw Avro). The `--raw` mode exists only as a fallback and will not parse
-  in RisingWave; `fastavro.schemaless_writer` is used, not
-  `fastavro.writer` (object container files are rejected).
-- Kafka's external listener can be flaky from a laptop
-  (`NoBrokersAvailable` on connection resets) — retry the script. RisingWave
-  inside the cluster connects fine.
-- Pulsar schema quirk: `Array(Item())` (instance), not `Array(Item)`; use
-  `AvroSchema(OrderEvent)` on the producer.
-- The SQLWorkspace/SQLCatalog databases must exist before the topic is
-  consumed; create the SQLCatalog first, then produce.
-
-## Reference
-
-- `SQLWorkspace-SQLCatalog-E2E-Producers.md` (Desktop) — original handoff notes
-- `StreamNative_SQL_Workspace_Private_Preview_Testing_Guide_Staging.docx`
-  (Desktop) — staging validation report that used these scripts
