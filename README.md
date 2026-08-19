@@ -27,13 +27,25 @@ pip install -r requirements.txt
 
 ### Pulsar
 
+Partitioned topic:
+
 ```bash
 python3 produce_pulsar_avro.py \
   --token "$(cat /tmp/stg-pulsar.token)" \
   --count 10 --partitions 3
 ```
 
+Non-partitioned topic:
+
+```bash
+python3 produce_pulsar_avro.py \
+  --token "$(cat /tmp/stg-pulsar.token)" \
+  --count 10 --partitions 1
+```
+
 ### Kafka
+
+Partitioned topic:
 
 ```bash
 python3 produce_kafka_avro.py \
@@ -42,4 +54,15 @@ python3 produce_kafka_avro.py \
   --bootstrap <kafka-url>:9093 \
   --schema-registry-url https://<schema-registry-url> \
   --count 10 --partitions 3
+```
+
+Non-partitioned topic:
+
+```bash
+python3 produce_kafka_avro.py \
+  --token "$(cat /tmp/stg-kafka.token)" \
+  --schema-registry-token "$(cat /tmp/stg-sr.token)" \
+  --bootstrap <kafka-url>:9093 \
+  --schema-registry-url https://<schema-registry-url> \
+  --count 10 --partitions 1
 ```

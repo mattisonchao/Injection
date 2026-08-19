@@ -91,7 +91,8 @@ def main():
 
     client = pulsar.Client(args.service_url, authentication=pulsar.AuthenticationToken(args.token))
     try:
-        create_partitioned_topic(admin_base_url(args.service_url), args.token, args.topic, args.partitions)
+        if args.partitions > 1:
+            create_partitioned_topic(admin_base_url(args.service_url), args.token, args.topic, args.partitions)
         producer = client.create_producer(args.topic, schema=AvroSchema(None, schema_definition=SCHEMA))
         for i in range(args.count):
             event = rand_event(i + 1)
