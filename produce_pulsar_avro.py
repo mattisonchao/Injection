@@ -36,7 +36,7 @@ def create_partitioned_topic(admin_url, token, topic, partitions):
     """Create a partitioned topic with the given partition count (best effort)."""
     topic_path = topic.replace("persistent://", "", 1)
     url = f"{admin_url}/admin/v2/persistent/{topic_path}/partitions"
-    body = json.dumps({"partitions": partitions}).encode()
+    body = str(partitions).encode()
     request = urllib.request.Request(
         url,
         data=body,
