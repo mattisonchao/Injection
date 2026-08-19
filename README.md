@@ -51,7 +51,7 @@ SASL usernames are the JWT `sub` claim and are extracted automatically.
 ```bash
 python3 produce_pulsar_avro.py \
   --token "$(cat /tmp/stg-pulsar.token)" \
-  --service-url pulsar+ssl://pc-d29e67c7.aws-use1-dev-yrnrn.aws.sn3.dev:6651 \
+  --service-url pulsar+ssl://<pulsar-url>:6651 \
   --topic persistent://public/default/order-events \
   --count 10 --interval 0 --start-id 1
 ```
@@ -62,8 +62,8 @@ python3 produce_pulsar_avro.py \
 python3 produce_kafka_avro.py \
   --token "$(cat /tmp/stg-kafka.token)" \
   --schema-registry-token "$(cat /tmp/stg-sr.token)" \
-  --bootstrap kc-arpcp.aws-use1-dev-yrnrn.aws.sn3.dev:9093 \
-  --schema-registry-url https://c-hgttane-schema-registry.aws-use1-dev-yrnrn.aws.sn3.dev \
+  --bootstrap <kafka-url>:9093 \
+  --schema-registry-url https://<schema-registry-url> \
   --topic order-events --count 10 --start-id 1
 ```
 
