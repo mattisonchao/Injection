@@ -1,0 +1,5 @@
+*.token
+*.token.txt
+__pycache__/
+.venv/
+venv/
