@@ -101,7 +101,7 @@ def main():
     parser.add_argument("--schema-registry-username", default=None, help="Schema Registry username (default: from token sub claim)")
     parser.add_argument("--topic", default="order-events")
     parser.add_argument("--count", type=int, default=10)
-    parser.add_argument("--partitions", type=int, default=1, help="number of partitions for the topic (1 = non-partitioned)")
+    parser.add_argument("--partitions", type=int, default=1, help="number of partitions for the topic (default 1 = single partition)")
     parser.add_argument("--replication-factor", type=int, default=3)
     parser.add_argument("--no-create-topic", action="store_true")
     parser.add_argument("--raw", action="store_true", help="produce raw AVRO bytes (no Confluent wire header)")

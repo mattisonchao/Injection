@@ -35,6 +35,14 @@ python3 produce_pulsar_avro.py \
   --count 10 --partitions 3
 ```
 
+Single-partition partitioned topic:
+
+```bash
+python3 produce_pulsar_avro.py \
+  --token "$(cat /tmp/stg-pulsar.token)" \
+  --count 10 --partitions 1
+```
+
 Non-partitioned topic:
 
 ```bash
@@ -56,7 +64,8 @@ python3 produce_kafka_avro.py \
   --count 10 --partitions 3
 ```
 
-Non-partitioned topic:
+Non-partitioned topic (defaults to a single-partition topic; Kafka topics
+always have at least one partition, so `--partitions 1` is equivalent):
 
 ```bash
 python3 produce_kafka_avro.py \

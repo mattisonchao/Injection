@@ -86,12 +86,17 @@ def main():
     parser.add_argument("--token", required=True, help="Pulsar AuthV2 JWT")
     parser.add_argument("--topic", default="persistent://public/default/order-events")
     parser.add_argument("--count", type=int, default=10)
-    parser.add_argument("--partitions", type=int, default=1, help="number of partitions for the topic (1 = non-partitioned)")
+    parser.add_argument(
+        "--partitions",
+        type=int,
+        default=0,
+        help="number of partitions (0 = non-partitioned topic; N >= 1 = partitioned topic with N partitions)",
+    )
     args = parser.parse_args()
 
     client = pulsar.Client(args.service_url, authentication=pulsar.AuthenticationToken(args.token))
     try:
-        if args.partitions > 1:
+        if args.partitions >= 1:
             create_partitioned_topic(admin_base_url(args.service_url), args.token, args.topic, args.partitions)
         producer = client.create_producer(args.topic, schema=AvroSchema(None, schema_definition=SCHEMA))
         for i in range(args.count):
