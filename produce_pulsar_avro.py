@@ -5,7 +5,7 @@ Usage:
   python3 produce_pulsar_avro.py --token <JWT> \
       [--service-url pulsar+ssl://<pulsar-url>:6651] \
       [--topic persistent://public/default/order-events] \
-      [--count 10] [--interval 0]
+      [--count 10]
 """
 import argparse
 import json
@@ -51,7 +51,6 @@ def main():
     parser.add_argument("--token", required=True, help="Pulsar AuthV2 JWT")
     parser.add_argument("--topic", default="persistent://public/default/order-events")
     parser.add_argument("--count", type=int, default=10)
-    parser.add_argument("--interval", type=float, default=0.0, help="seconds between messages")
     args = parser.parse_args()
 
     client = pulsar.Client(args.service_url, authentication=pulsar.AuthenticationToken(args.token))
@@ -61,8 +60,6 @@ def main():
             event = rand_event(i + 1)
             producer.send(event)
             print("sent", event["order_id"], event["status"], event["amount"], flush=True)
-            if args.interval:
-                time.sleep(args.interval)
         producer.close()
     finally:
         client.close()

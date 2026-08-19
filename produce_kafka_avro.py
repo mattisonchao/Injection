@@ -7,7 +7,7 @@ Registry, and produces Confluent wire-format (magic byte + schema id + avro).
 Usage:
   python3 produce_kafka_avro.py --token <KAFKA_JWT> --schema-registry-token <SR_JWT> \
       [--bootstrap host:9093] [--schema-registry-url https://host] \
-      [--topic order-events] [--count 10] [--interval 0] \
+      [--topic order-events] [--count 10] \
       [--partitions 3] [--replication-factor 3] [--no-create-topic]
 """
 import argparse
@@ -101,7 +101,6 @@ def main():
     parser.add_argument("--schema-registry-username", default=None, help="Schema Registry username (default: from token sub claim)")
     parser.add_argument("--topic", default="order-events")
     parser.add_argument("--count", type=int, default=10)
-    parser.add_argument("--interval", type=float, default=0.0, help="seconds between messages")
     parser.add_argument("--partitions", type=int, default=3)
     parser.add_argument("--replication-factor", type=int, default=3)
     parser.add_argument("--no-create-topic", action="store_true")
@@ -153,8 +152,6 @@ def main():
         future = producer.send(args.topic, value=value)
         future.get(timeout=15)
         print("sent", event["order_id"], event["status"], event["amount"], flush=True)
-        if args.interval:
-            time.sleep(args.interval)
     producer.close()
     print("done")
 
