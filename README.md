@@ -56,8 +56,7 @@ python3 produce_kafka_avro.py \
   --count 10 --partitions 3
 ```
 
-Non-partitioned topic (defaults to a single-partition topic; Kafka topics
-always have at least one partition, so `--partitions 1` is equivalent):
+Non-partitioned topic:
 
 ```bash
 python3 produce_kafka_avro.py \
