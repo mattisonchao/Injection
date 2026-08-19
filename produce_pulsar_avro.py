@@ -5,7 +5,7 @@ Usage:
   python3 produce_pulsar_avro.py --token <JWT> \
       [--service-url pulsar+ssl://<pulsar-url>:6651] \
       [--topic persistent://public/default/order-events] \
-      [--count 10] [--interval 0] [--start-id 1]
+      [--count 10] [--interval 0]
 """
 import argparse
 import json
@@ -52,14 +52,13 @@ def main():
     parser.add_argument("--topic", default="persistent://public/default/order-events")
     parser.add_argument("--count", type=int, default=10)
     parser.add_argument("--interval", type=float, default=0.0, help="seconds between messages")
-    parser.add_argument("--start-id", type=int, default=1)
     args = parser.parse_args()
 
     client = pulsar.Client(args.service_url, authentication=pulsar.AuthenticationToken(args.token))
     try:
         producer = client.create_producer(args.topic, schema=AvroSchema(None, schema_definition=SCHEMA))
         for i in range(args.count):
-            event = rand_event(args.start_id + i)
+            event = rand_event(i + 1)
             producer.send(event)
             print("sent", event["order_id"], event["status"], event["amount"], flush=True)
             if args.interval:

@@ -7,7 +7,7 @@ Registry, and produces Confluent wire-format (magic byte + schema id + avro).
 Usage:
   python3 produce_kafka_avro.py --token <KAFKA_JWT> --schema-registry-token <SR_JWT> \
       [--bootstrap host:9093] [--schema-registry-url https://host] \
-      [--topic order-events] [--count 10] [--interval 0] [--start-id 1] \
+      [--topic order-events] [--count 10] [--interval 0] \
       [--partitions 3] [--replication-factor 3] [--no-create-topic]
 """
 import argparse
@@ -102,7 +102,6 @@ def main():
     parser.add_argument("--topic", default="order-events")
     parser.add_argument("--count", type=int, default=10)
     parser.add_argument("--interval", type=float, default=0.0, help="seconds between messages")
-    parser.add_argument("--start-id", type=int, default=1)
     parser.add_argument("--partitions", type=int, default=3)
     parser.add_argument("--replication-factor", type=int, default=3)
     parser.add_argument("--no-create-topic", action="store_true")
@@ -146,7 +145,7 @@ def main():
         client_id="e2e-producer",
     )
     for i in range(args.count):
-        event = rand_event(args.start_id + i)
+        event = rand_event(i + 1)
         buffer = io.BytesIO()
         fastavro.schemaless_writer(buffer, AVRO_SCHEMA, event)
         payload = buffer.getvalue()
