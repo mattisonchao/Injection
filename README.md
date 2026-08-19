@@ -35,14 +35,6 @@ python3 produce_pulsar_avro.py \
   --count 10 --partitions 3
 ```
 
-Single-partition partitioned topic:
-
-```bash
-python3 produce_pulsar_avro.py \
-  --token "$(cat /tmp/stg-pulsar.token)" \
-  --count 10 --partitions 1
-```
-
 Non-partitioned topic:
 
 ```bash
