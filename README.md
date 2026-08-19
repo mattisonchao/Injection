@@ -40,7 +40,7 @@ Non-partitioned topic:
 ```bash
 python3 produce_pulsar_avro.py \
   --token "$(cat /tmp/stg-pulsar.token)" \
-  --count 10 --partitions 1
+  --count 10
 ```
 
 ### Kafka
@@ -64,5 +64,5 @@ python3 produce_kafka_avro.py \
   --schema-registry-token "$(cat /tmp/stg-sr.token)" \
   --bootstrap <kafka-url>:9093 \
   --schema-registry-url https://<schema-registry-url> \
-  --count 10 --partitions 1
+  --count 10
 ```

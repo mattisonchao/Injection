@@ -5,7 +5,7 @@ Usage:
   python3 produce_pulsar_avro.py --token <JWT> \
       [--service-url pulsar+ssl://<pulsar-url>:6651] \
       [--topic persistent://public/default/order-events] \
-      [--count 10] [--partitions 3]
+      [--count 10] [--partitions N]
 """
 import argparse
 import json
@@ -86,7 +86,7 @@ def main():
     parser.add_argument("--token", required=True, help="Pulsar AuthV2 JWT")
     parser.add_argument("--topic", default="persistent://public/default/order-events")
     parser.add_argument("--count", type=int, default=10)
-    parser.add_argument("--partitions", type=int, default=3, help="number of partitions for the topic")
+    parser.add_argument("--partitions", type=int, default=1, help="number of partitions for the topic (1 = non-partitioned)")
     args = parser.parse_args()
 
     client = pulsar.Client(args.service_url, authentication=pulsar.AuthenticationToken(args.token))
