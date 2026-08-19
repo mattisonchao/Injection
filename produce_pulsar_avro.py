@@ -5,13 +5,17 @@ Usage:
   python3 produce_pulsar_avro.py --token <JWT> \
       [--service-url pulsar+ssl://<pulsar-url>:6651] \
       [--topic persistent://public/default/order-events] \
-      [--count 10]
+      [--count 10] [--partitions 3]
 """
 import argparse
 import json
 import random
+import ssl
 import string
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
 
 import pulsar
@@ -19,6 +23,37 @@ from pulsar.schema import AvroSchema
 
 SCHEMA_PATH = Path(__file__).resolve().parent / "schemas" / "order_event.avro"
 SCHEMA = json.loads(SCHEMA_PATH.read_text())
+
+
+def admin_base_url(service_url):
+    """Derive the admin URL from a pulsar service URL (pulsar+ssl://host:6651 -> https://host:8443)."""
+    scheme = "https" if service_url.startswith("pulsar+ssl") else "http"
+    parts = urllib.parse.urlsplit(service_url.replace("pulsar+ssl", "https").replace("pulsar", "http"))
+    return f"{scheme}://{parts.hostname}:8443"
+
+
+def create_partitioned_topic(admin_url, token, topic, partitions):
+    """Create a partitioned topic with the given partition count (best effort)."""
+    topic_path = topic.replace("persistent://", "", 1)
+    url = f"{admin_url}/admin/v2/persistent/{topic_path}/partitions"
+    body = json.dumps({"partitions": partitions}).encode()
+    request = urllib.request.Request(
+        url,
+        data=body,
+        method="PUT",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+    )
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    try:
+        with urllib.request.urlopen(request, timeout=15, context=context) as response:
+            print("created partitioned topic", topic, "partitions", partitions)
+    except urllib.error.HTTPError as error:
+        print("partitioned topic create skipped:", error.code, error.reason)
 
 
 def rand_email():
@@ -51,10 +86,12 @@ def main():
     parser.add_argument("--token", required=True, help="Pulsar AuthV2 JWT")
     parser.add_argument("--topic", default="persistent://public/default/order-events")
     parser.add_argument("--count", type=int, default=10)
+    parser.add_argument("--partitions", type=int, default=3, help="number of partitions for the topic")
     args = parser.parse_args()
 
     client = pulsar.Client(args.service_url, authentication=pulsar.AuthenticationToken(args.token))
     try:
+        create_partitioned_topic(admin_base_url(args.service_url), args.token, args.topic, args.partitions)
         producer = client.create_producer(args.topic, schema=AvroSchema(None, schema_definition=SCHEMA))
         for i in range(args.count):
             event = rand_event(i + 1)
