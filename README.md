@@ -43,14 +43,3 @@ python3 produce_kafka_avro.py \
   --schema-registry-url https://<schema-registry-url> \
   --count 10
 ```
-
-## End-to-end verification flow
-
-1. Produce initial records (creates the topic + registers the schema).
-2. Wait for the SQLCatalog to discover the topic and sync the RisingWave
-   source (`kubectl get sqlcatalog <name> -n <org>` → phase `Ready`).
-3. Create a materialized view over the source.
-4. Produce more records **after** the MV exists — catalog sources are shared
-   and disable snapshot backfill, so only post-MV events are ingested.
-5. Query the MV through the workspace gateway (psql :4567 or the WebSocket
-   endpoint) and verify the rows.
