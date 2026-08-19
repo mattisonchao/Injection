@@ -23,10 +23,10 @@ python3 -m venv .venv
 pip install -r requirements.txt
 ```
 
-## Tokens (never commit these)
+## Finding tokens
 
-AuthV2 JWTs come from the data-plane cluster-token Secrets in the workspace
-namespace:
+AuthV2 JWTs can be found in the data-plane cluster-token Secrets in the
+workspace namespace:
 
 ```bash
 # Pulsar
