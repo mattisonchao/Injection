@@ -26,10 +26,10 @@ SCHEMA = json.loads(SCHEMA_PATH.read_text())
 
 
 def admin_base_url(service_url):
-    """Derive the admin URL from a pulsar service URL (pulsar+ssl://host:6651 -> https://host:8443)."""
+    """Derive the admin URL from a pulsar service URL (pulsar+ssl://host:6651 -> https://host:443)."""
     scheme = "https" if service_url.startswith("pulsar+ssl") else "http"
     parts = urllib.parse.urlsplit(service_url.replace("pulsar+ssl", "https").replace("pulsar", "http"))
-    return f"{scheme}://{parts.hostname}:8443"
+    return f"{scheme}://{parts.hostname}:443"
 
 
 def create_partitioned_topic(admin_url, token, topic, partitions):
@@ -86,6 +86,7 @@ def main():
     parser.add_argument("--token", required=True, help="Pulsar AuthV2 JWT")
     parser.add_argument("--topic", default="persistent://public/default/order-events")
     parser.add_argument("--count", type=int, default=10)
+    parser.add_argument("--admin-url", default=None, help="Pulsar admin base URL (default: https://<host>:443 derived from --service-url)")
     parser.add_argument(
         "--partitions",
         type=int,
@@ -93,11 +94,12 @@ def main():
         help="number of partitions (0 = non-partitioned topic; N >= 1 = partitioned topic with N partitions)",
     )
     args = parser.parse_args()
+    admin_url = args.admin_url or admin_base_url(args.service_url)
 
     client = pulsar.Client(args.service_url, authentication=pulsar.AuthenticationToken(args.token))
     try:
         if args.partitions >= 1:
-            create_partitioned_topic(admin_base_url(args.service_url), args.token, args.topic, args.partitions)
+            create_partitioned_topic(admin_url, args.token, args.topic, args.partitions)
         producer = client.create_producer(args.topic, schema=AvroSchema(None, schema_definition=SCHEMA))
         for i in range(args.count):
             event = rand_event(i + 1)
