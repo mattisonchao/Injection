@@ -8,8 +8,8 @@ end-to-end validation on StreamNative Cloud.
 
 | Script | Upstream | Payload format |
 |---|---|---|
-| `produce_kafka_avro.py` | Kafka (AuthV2) | Confluent wire format (magic byte + schema id + raw Avro) |
-| `produce_pulsar_avro.py` | Pulsar (AuthV2) | Pulsar AVRO schema |
+| `produce_kafka_avro.py` | Kafka | Confluent wire format (magic byte + schema id + raw Avro) |
+| `produce_pulsar_avro.py` | Pulsar | Pulsar AVRO schema |
 
 Both scripts use the same `OrderEvent` schema used by the SQLCatalog
 integration tests: `order_id`, `customer` (record), `items` (array),
@@ -23,27 +23,6 @@ python3 -m venv .venv
 pip install -r requirements.txt
 ```
 
-## Finding tokens
-
-AuthV2 JWTs can be found in the data-plane cluster-token Secrets in the
-workspace namespace:
-
-```bash
-# Pulsar
-kubectl get secret global-apikey-cluster-token-<pulsar-cluster> -n <org> \
-  -o jsonpath='{.data.token}' | base64 -d
-
-# Kafka
-kubectl get secret global-apikey-cluster-token-<kafka-cluster>-kafka -n <org> \
-  -o jsonpath='{.data.token}' | base64 -d
-
-# Kafka Schema Registry
-kubectl get secret global-apikey-cluster-token-<kafka-cluster>-schema-registry -n <org> \
-  -o jsonpath='{.data.token}' | base64 -d
-```
-
-SASL usernames are the JWT `sub` claim and are extracted automatically.
-
 ## Usage (staging example)
 
 ### Pulsar
@@ -51,9 +30,7 @@ SASL usernames are the JWT `sub` claim and are extracted automatically.
 ```bash
 python3 produce_pulsar_avro.py \
   --token "$(cat /tmp/stg-pulsar.token)" \
-  --service-url pulsar+ssl://<pulsar-url>:6651 \
-  --topic persistent://public/default/order-events \
-  --count 10 --interval 0 --start-id 1
+  --count 10
 ```
 
 ### Kafka
@@ -64,11 +41,8 @@ python3 produce_kafka_avro.py \
   --schema-registry-token "$(cat /tmp/stg-sr.token)" \
   --bootstrap <kafka-url>:9093 \
   --schema-registry-url https://<schema-registry-url> \
-  --topic order-events --count 10 --start-id 1
+  --count 10
 ```
-
-Cluster endpoints come from the cluster status
-(`kubectl get kafkacluster/pulsarcluster <name> -n <org> -o yaml`).
 
 ## End-to-end verification flow
 

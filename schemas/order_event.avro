@@ -1,0 +1,46 @@
+{
+  "type": "record",
+  "name": "OrderEvent",
+  "namespace": "sn.e2e",
+  "fields": [
+    {"name": "order_id", "type": "long"},
+    {
+      "name": "customer",
+      "type": {
+        "type": "record",
+        "name": "Customer",
+        "fields": [
+          {"name": "id", "type": "string"},
+          {"name": "email", "type": ["null", "string"], "default": null}
+        ]
+      }
+    },
+    {
+      "name": "items",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "Item",
+          "fields": [
+            {"name": "sku", "type": "string"},
+            {"name": "qty", "type": "int"},
+            {"name": "price", "type": "double"}
+          ]
+        }
+      }
+    },
+    {"name": "tags", "type": {"type": "array", "items": "string"}},
+    {"name": "metadata", "type": {"type": "map", "values": "string"}},
+    {
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "OrderStatus",
+        "symbols": ["NEW", "PROCESSING", "DONE", "CANCELLED"]
+      }
+    },
+    {"name": "amount", "type": ["null", "double"], "default": null},
+    {"name": "created_at", "type": "long"}
+  ]
+}

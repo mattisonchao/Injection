@@ -27,45 +27,10 @@ from kafka import KafkaAdminClient, KafkaProducer
 from kafka.admin import NewTopic
 from kafka.errors import TopicAlreadyExistsError
 
-AVRO_SCHEMA = {
-    "type": "record",
-    "name": "OrderEvent",
-    "namespace": "sn.e2e",
-    "fields": [
-        {"name": "order_id", "type": "long"},
-        {
-            "name": "customer",
-            "type": {
-                "type": "record",
-                "name": "Customer",
-                "fields": [
-                    {"name": "id", "type": "string"},
-                    {"name": "email", "type": ["null", "string"], "default": None},
-                ],
-            },
-        },
-        {
-            "name": "items",
-            "type": {
-                "type": "array",
-                "items": {
-                    "type": "record",
-                    "name": "Item",
-                    "fields": [
-                        {"name": "sku", "type": "string"},
-                        {"name": "qty", "type": "int"},
-                        {"name": "price", "type": "double"},
-                    ],
-                },
-            },
-        },
-        {"name": "tags", "type": {"type": "array", "items": "string"}},
-        {"name": "metadata", "type": {"type": "map", "values": "string"}},
-        {"name": "status", "type": {"type": "enum", "name": "OrderStatus", "symbols": ["NEW", "PROCESSING", "DONE", "CANCELLED"]}},
-        {"name": "amount", "type": ["null", "double"], "default": None},
-        {"name": "created_at", "type": "long"},
-    ],
-}
+from pathlib import Path
+
+SCHEMA_PATH = Path(__file__).resolve().parent / "schemas" / "order_event.avro"
+AVRO_SCHEMA = json.loads(SCHEMA_PATH.read_text())
 
 
 def username_from_token(token):
@@ -128,10 +93,10 @@ def make_ssl_context():
 
 def main():
     parser = argparse.ArgumentParser(description="Produce random AVRO OrderEvent records to Kafka")
-    parser.add_argument("--bootstrap", default="kc-fwdwn.aws-usw1-dev-qeg8u.test.aws.sn2.dev:9093")
+    parser.add_argument("--bootstrap", default="<kafka-url>:9093")
     parser.add_argument("--token", required=True, help="Kafka AuthV2 JWT")
     parser.add_argument("--sasl-username", default=None, help="SASL username (default: from token sub claim)")
-    parser.add_argument("--schema-registry-url", default="https://c-a0upxq5-schema-registry.aws-usw1-dev-qeg8u.test.aws.sn2.dev")
+    parser.add_argument("--schema-registry-url", default="https://<schema-registry-url>")
     parser.add_argument("--schema-registry-token", required=True, help="Schema Registry AuthV2 JWT")
     parser.add_argument("--schema-registry-username", default=None, help="Schema Registry username (default: from token sub claim)")
     parser.add_argument("--topic", default="order-events")
